@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"> <!-- Use UTF-8 text encoding. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Mobile-friendly layout. -->
+  <title>BBB ADC Frequency Telemetry</title> <!-- Browser tab title. -->
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+           background: #0b1320; color: #e5edf7; }
+    main { width: min(92vw, 480px); padding: 28px; box-sizing: border-box;
+           border-radius: 22px; background: #19263a; text-align: center; }
+    h1 { margin-top: 0; font-size: 1.35rem; }
+    svg { width: 100%; max-width: 390px; height: auto; }
+    .readout { font-size: 2.5rem; font-weight: 750; color: #34d399; }
+    .secondary { color: #aabbd0; }
+    .error { color: #fb7185; }
+    #needle { transition: transform .35s ease; transform-origin: 160px 152px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>BeagleBone Black · Frequency</h1>
+    <svg viewBox="0 0 320 193" role="img" aria-label="Frequency gauge from 45 to 65 hertz">
+      <path d="M40 152 A120 120 0 0 1 280 152" fill="none"
+            stroke="#38475c" stroke-width="17" stroke-linecap="round" />
+      <line id="needle" x1="160" y1="152" x2="40" y2="152"
+            stroke="#34d399" stroke-width="5" stroke-linecap="round" />
+      <circle cx="160" cy="152" r="8" fill="#34d399" />
+      <text x="25" y="179" fill="white" font-size="13">45</text>
+      <text x="275" y="179" fill="white" font-size="13">65</text>
+      <text x="160" y="102" fill="white" font-size="17" text-anchor="middle">Hz</text>
+    </svg>
+    <div id="frequency" class="readout" aria-live="polite">-- Hz</div>
+    <p id="adc" class="secondary">ADC0: -- / 4095</p>
+    <p id="status" class="secondary">Connecting...</p>
+  </main>
+  <script>
+    const MIN_HZ = 45;                                // Minimum gauge value.
+    const MAX_HZ = 65;                                // Maximum gauge value.
+    const intervalMilliseconds = 500;                // Poll twice each second.
+    const needle = document.getElementById('needle');
+    const frequency = document.getElementById('frequency');
+    const adc = document.getElementById('adc');
+    const status = document.getElementById('status');
+
+    function updateGauge(hz) {
+      // Clamp the value to [0, 1], keeping the needle inside the visible arc.
+      const normalized = Math.max(0, Math.min(1, (hz - MIN_HZ) / (MAX_HZ - MIN_HZ)));
+      // Rotation around the pivot: -0 degrees = left; 180 degrees = right.
+      needle.style.transform = `rotate(${180 * normalized}deg)`;
+    }
+
+    async function poll() {
+      try {
+        const response = await fetch('/api/frequency', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!Number.isFinite(data.frequency_hz)) throw new Error('Invalid frequency');
+        frequency.textContent = `${data.frequency_hz.toFixed(3)} Hz`;
+        adc.textContent = `ADC0: ${data.adc_raw} / 4095`;
+        status.textContent = 'Live · updating every 500 ms';
+        status.className = 'secondary';
+        updateGauge(data.frequency_hz);
+      } catch (error) {
+        // Do not display the last known value as though it were still live.
+        frequency.textContent = '-- Hz';
+        adc.textContent = 'ADC0: unavailable';
+        status.textContent = `Disconnected (${error.message})`;
+        status.className = 'error';
+      }
+      setTimeout(poll, intervalMilliseconds);       // No overlapping polling requests.
+    }
+    poll();                                         // Start after loading the page.
+  </script>
+</body>
+</html>

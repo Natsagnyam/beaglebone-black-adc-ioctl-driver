@@ -1,0 +1,20 @@
+[Unit]
+Description=BeagleBone Black ADC ioctl frequency telemetry
+After=systemd-modules-load.service
+
+[Service]
+Type=simple
+# This first learning service runs as root because /dev/bbb_freq uses mode 0600.
+# Production: use a dedicated service account and suitable device permissions.
+ExecStart=/usr/bin/bbb-freq-dashboard
+Environment=BBB_FREQ_HTML=/usr/share/bbb-freq/index.html
+Environment=BBB_FREQ_HOST=0.0.0.0
+Environment=BBB_FREQ_PORT=8000
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
