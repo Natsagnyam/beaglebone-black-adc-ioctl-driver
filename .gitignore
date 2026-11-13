@@ -1,0 +1,71 @@
+# ============================================================
+# Project: BeagleBone Black ADC ioctl Driver
+# Purpose: Exclude generated files and temporary artifacts
+# ============================================================
+
+# ------------------------------------------------------------
+# Linux kernel module build artifacts
+# ------------------------------------------------------------
+*.o
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.order
+*.symvers
+*.cmd
+*.d
+
+# Kernel build metadata
+.tmp_versions/
+.cache.mk
+Module.symvers
+modules.order
+
+# Hidden Kbuild intermediate files
+.*.cmd
+.*.d
+
+# ------------------------------------------------------------
+# Userspace application binaries
+# ------------------------------------------------------------
+/test_ioctl
+/adc_read
+/inspect_ioctl
+
+# ------------------------------------------------------------
+# Temporary editor files
+# ------------------------------------------------------------
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# ------------------------------------------------------------
+# Debugging and profiling artifacts
+# ------------------------------------------------------------
+*.log
+*.core
+core
+core.*
+
+# ------------------------------------------------------------
+# Python files (future web telemetry development)
+# ------------------------------------------------------------
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ------------------------------------------------------------
+# IDE and editor settings
+# ------------------------------------------------------------
+.vscode/
+.idea/
+
+# ------------------------------------------------------------
+# Operating system temporary files
+# ------------------------------------------------------------
+.DS_Store
+Thumbs.db
