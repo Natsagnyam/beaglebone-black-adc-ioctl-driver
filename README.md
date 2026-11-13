@@ -335,7 +335,8 @@ git add Makefile freq_driver.c freq_ioctl.h test_ioctl.c README.md
 git commit -m "Initial BBB ADC ioctl driver and live test"
 
 git branch -M main
-git remote add origin https://github.com/Natsagnyam/beaglebone-black-adc-ioctl-driver.git
+# git remote add origin https://github.com/Natsagnyam/beaglebone-black-adc-ioctl-driver.git
+git remote add origin git@github.com:Natsagnyam/beaglebone-black-adc-ioctl-driver.git
 git push -u origin main
 ```
 
